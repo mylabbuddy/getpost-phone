@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabTest Pro | Booking System</title>
+    <!--
+    ================================================================
+    GOOGLE APPS SCRIPT CODE (Copy this to your Apps Script Editor)
+    ================================================================
+    
+    const SHEET_NAME = "Sheet1";
+
+    function doGet(e) {
+      const action = e.parameter.action;
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      const sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+
+      if (action === "get") {
+        const phone = e.parameter.phone;
+        const data = sheet.getDataRange().getValues();
+        const headers = data[0];
+        const results = data.slice(1)
+          .filter(row => row[6].toString() === phone.toString())
+          .map(row => {
+            let obj = {};
+            headers.forEach((header, i) => obj[header] = row[i]);
+            return obj;
+          });
+        return ContentService.createTextOutput(JSON.stringify(results))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    function doPost(e) {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      const sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+      const data = JSON.parse(e.postData.contents);
+      
+      // Setup headers if sheet is empty
+      if (sheet.getLastRow() === 0) {
+        sheet.appendRow(["Date", "LabSelection", "PatientName", "LabTestAdd", "Timestamp", "BookingID", "PhoneNumber"]);
+      }
+      
+      sheet.appendRow([
+        data.date,
+        data.lab,
+        data.name,
+        data.test,
+        data.timestamp,
+        data.bookingId,
+        data.phone
+      ]);
+      
+      return ContentService.createTextOutput(JSON.stringify({status: "success"}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    ================================================================
+    -->
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: var(--text-light);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+
+        .hidden { display: none; }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            ring: 2px solid rgba(37, 99, 235, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .submit-btn:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+        }
+
+        /* Results List Style */
+        .results-list {
+            margin-top: 1.5rem;
+        }
+
+        .result-item {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: #fafafa;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .result-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .status-msg {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .success { background: #dcfce7; color: #166534; }
+        .error { background: #fee2e2; color: #991b1b; }
+
+        @media (max-width: 640px) {
+            .result-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>My Lab Buddy (MLB)</h1>
+            <p style="color: var(--text-light)">Reliable Diagnostics at Your Fingertips</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('post')">doPost (mlb)</button>
+            <button class="tab-btn" onclick="switchTab('get')">doGet (mlb)</button>
+        </div>
+
+        <!-- POST DATA SECTION -->
+        <div id="postSection" class="card">
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label>Patient Name</label>
+                    <input type="text" id="patientName" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Enter Phone Number" required>
+                </div>
+                <div class="form-group">
+                    <label>Preferred Date</label>
+                    <input type="date" id="testDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Select Lab</label>
+                    <select id="labSelection" required>
+                        <!-- <option value="">Choose a location...</option> -->
+                        <option value="Prognosis Laboratories">Prognosis Laboratories</option>
+                        <option value="Metropolis Diagnostics">Metropolis Diagnostics</option>
+                        <option value="Healthians">Healthians</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Lab Test to Add</label>
+                    <input type="text" id="labTest" placeholder="e.g. CBC, Lipid Profile" required>
+                </div>
+                <button type="submit" class="submit-btn" id="postBtn">Book Appointment</button>
+            </form>
+            <div id="postStatus"></div>
+        </div>
+
+        <!-- GET DATA SECTION -->
+        <div id="getSection" class="card hidden">
+            <div class="form-group">
+                <label>Find Bookings by Phone Number</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="tel" id="searchPhone" placeholder="Enter phone number">
+                    <button class="submit-btn" style="width: auto; padding: 0 1.5rem;" onclick="fetchData()">Search</button>
+                </div>
+            </div>
+            <div id="resultsContainer" class="results-list">
+                <!-- Results will appear here -->
+                <p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Enter your phone number to see your booking history.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. PASTE YOUR APPS SCRIPT WEB APP URL HERE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9YuR-9RnLwxP7Km1SgX659wO5dnH05_W22ZfcBuYyQAYFIiYzmFYcMGUN1WNAWlgrdw/exec";
+
+        function switchTab(tab) {
+            const postSec = document.getElementById('postSection');
+            const getSec = document.getElementById('getSection');
+            const btns = document.querySelectorAll('.tab-btn');
+
+            if (tab === 'post') {
+                postSec.classList.remove('hidden');
+                getSec.classList.add('hidden');
+                btns[0].classList.add('active');
+                btns[1].classList.remove('active');
+            } else {
+                postSec.classList.add('hidden');
+                getSec.classList.remove('hidden');
+                btns[0].classList.remove('active');
+                btns[1].classList.add('active');
+            }
+        }
+
+        // POST DATA LOGIC
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const postBtn = document.getElementById('postBtn');
+            const postStatus = document.getElementById('postStatus');
+            
+            if (SCRIPT_URL.includes("YOUR_APPS_SCRIPT")) {
+                postStatus.innerHTML = `<div class="status-msg error">Error: Please set the SCRIPT_URL in the code.</div>`;
+                return;
+            }
+
+            postBtn.disabled = true;
+            postBtn.innerText = "Processing...";
+            postStatus.innerHTML = "";
+
+            const payload = {
+                date: document.getElementById('testDate').value,
+                lab: document.getElementById('labSelection').value,
+                name: document.getElementById('patientName').value,
+                test: document.getElementById('labTest').value,
+                timestamp: new Date().toLocaleString(),
+                bookingId: 'BK-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                // We use fetch with no-cors or standard fetch if Apps Script is configured for CORS
+                // Standard Apps Script allows POST via redirect
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    postStatus.innerHTML = `<div class="status-msg success">Booking successful! ID: ${payload.bookingId}</div>`;
+                    document.getElementById('bookingForm').reset();
+                } else {
+                    throw new Error("Server responded with error");
+                }
+            } catch (err) {
+                console.error(err);
+                postStatus.innerHTML = `<div class="status-msg error">Submission failed. Ensure Apps Script is deployed as Web App (Anyone).</div>`;
+            } finally {
+                postBtn.disabled = false;
+                postBtn.innerText = "Book Appointment";
+            }
+        });
+
+        // GET DATA LOGIC
+        async function fetchData() {
+            const phone = document.getElementById('searchPhone').value;
+            const container = document.getElementById('resultsContainer');
+            
+            if (!phone) {
+                container.innerHTML = `<div class="status-msg error">Please enter a phone number.</div>`;
+                return;
+            }
+
+            if (SCRIPT_URL.includes("YOUR_APPS_SCRIPT")) {
+                container.innerHTML = `<div class="status-msg error">Error: SCRIPT_URL not configured.</div>`;
+                return;
+            }
+
+            container.innerHTML = `<p style="text-align: center;">Searching...</p>`;
+
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=get&phone=${phone}`);
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    container.innerHTML = `<p style="text-align: center; color: var(--text-light);">No records found for this number.</p>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(item => `
+                    <div class="result-item">
+                        <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                            Booking ID: ${item.BookingID}
+                        </div>
+                        <div class="result-grid">
+                            <div><span class="result-label">Patient:</span> ${item.PatientName}</div>
+                            <div><span class="result-label">Date:</span> ${item.Date}</div>
+                            <div><span class="result-label">Lab:</span> ${item.LabSelection}</div>
+                            <div><span class="result-label">Test:</span> ${item.LabTestAdd}</div>
+                            <div><span class="result-label">Booked On:</span> ${item.Timestamp}</div>
+                            <div><span class="result-label">Phone:</span> ${item.PhoneNumber}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<div class="status-msg error">Error fetching data. Check your Web App deployment.</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
