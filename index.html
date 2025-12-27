@@ -4,59 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LabTest Pro | Booking System</title>
-    <!--
-    ================================================================
-    GOOGLE APPS SCRIPT CODE (Copy this to your Apps Script Editor)
-    ================================================================
-    
-    const SHEET_NAME = "Sheet1";
-
-    function doGet(e) {
-      const action = e.parameter.action;
-      const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
-
-      if (action === "get") {
-        const phone = e.parameter.phone;
-        const data = sheet.getDataRange().getValues();
-        const headers = data[0];
-        const results = data.slice(1)
-          .filter(row => row[6].toString() === phone.toString())
-          .map(row => {
-            let obj = {};
-            headers.forEach((header, i) => obj[header] = row[i]);
-            return obj;
-          });
-        return ContentService.createTextOutput(JSON.stringify(results))
-          .setMimeType(ContentService.MimeType.JSON);
-      }
-    }
-
-    function doPost(e) {
-      const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
-      const data = JSON.parse(e.postData.contents);
-      
-      // Setup headers if sheet is empty
-      if (sheet.getLastRow() === 0) {
-        sheet.appendRow(["Date", "LabSelection", "PatientName", "LabTestAdd", "Timestamp", "BookingID", "PhoneNumber"]);
-      }
-      
-      sheet.appendRow([
-        data.date,
-        data.lab,
-        data.name,
-        data.test,
-        data.timestamp,
-        data.bookingId,
-        data.phone
-      ]);
-      
-      return ContentService.createTextOutput(JSON.stringify({status: "success"}))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-    ================================================================
-    -->
     <style>
         :root {
             --primary: #2563eb;
